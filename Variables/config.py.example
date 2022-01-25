@@ -1,0 +1,17 @@
+# Bot
+BOTTOKEN=""
+BOTPREFIX=">"
+CHANNELID=0
+
+# User
+USERTOKEN=""
+
+# Modwatching
+AUTO=False
+Guild=''
+ModRoles=['1', '2']
+Refresh=3.5
+
+# Misc
+DEBUG=False
+LOGPATH="./azalea.log"
