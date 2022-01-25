@@ -84,6 +84,10 @@ def FillModList():
 
     [List.append(x) for x in UserIDList if x not in List]
 
+    if len(List) == 0:
+        Log(4, "List is empty! Check Role IDs!")
+        exit(1)
+
 async def FillModStatus():
     for i in range(len(List)):
         Janny = User.gateway.session.guild(Guild).members[List[i]]
