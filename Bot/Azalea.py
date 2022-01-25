@@ -86,7 +86,7 @@ def FillModList():
 
 async def FillModStatus():
     for i in range(len(List)):
-        Janny = User.gateway.session.guild('286752091429535756').members[List[i]]
+        Janny = User.gateway.session.guild(Guild).members[List[i]]
         Obj = GetObject(Janny)
         Jannies.append(Obj)
         Log(0, f"Queried {i}, got \"{Obj.Username} ({Obj.Identity}) is {Obj.Status}\"")
