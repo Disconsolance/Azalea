@@ -29,6 +29,23 @@ async def on_ready():
     await FillModStatus()
     asyncio.get_event_loop().create_task(Ping())
 
+@Bot.command(name="status", brief="Fetches total amount of online moderators")
+async def Status(ctx):
+    i = 0
+    for Jannie in Jannies:
+        if Jannie.Status != "offline":
+            i+=1
+    
+    string=""
+    if i == 0:
+        string="There are no currently online moderators."
+    elif i == 1:
+        string="There is only 1 online moderator."
+    else:
+        string=f"There are {i} currently online moderators"
+
+    await Notify(string)
+
 async def Notify(message):
 	channel = Bot.get_channel(CHANNELID)
 	await channel.send(message)
