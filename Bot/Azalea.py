@@ -4,7 +4,7 @@ import time
 import asyncio
 
 from Variables.config import *
-from Variables.vars import *
+from Bot.vars import *
 from Utils.lists import *
 from Utils.logging import *
 from Objects.Mod import Moderator
@@ -46,6 +46,24 @@ async def Status(ctx):
 
     await Notify(string)
 
+@Bot.command(name="forceupdate")
+async def CallUpdate(ctx):
+    await Update()
+
+
+async def UpdateRole(index):
+    global UserIDList
+    UserIDList[index] = Filter(User.getRoleMemberIDs(Guild, ModRoles[index]).content.decode())
+    Log(0, f"Now - {UserIDList[index]}")
+    # TODO: Update trackerlist
+
+async def Update():
+    Counters = dict(json.loads(User.getRoleMemberCounts(Guild).content.decode()))
+    for i in range(len(ModRoles)):
+        if len(UserIDList[i]) != Counters[ModRoles[i]]:
+            Log(0, f"Members in {ModRoles[i]} have changed!\nWas: {UserIDList[i]}")
+            await UpdateRole(i)
+
 async def Notify(message):
 	channel = Bot.get_channel(CHANNELID)
 	await channel.send(message)
@@ -69,27 +87,38 @@ async def Ping():
                 Jannies.pop(i)
 
 
-def FillModList():
+def FillLists():
     global List
+    global ModRoles
+    global Roles
+    global UserIDList
     List=[]
-    Templist=[]
     UserIDList=[]
 
-    if AUTO == True:
-        RoleList = SortRoles(User.getGuildRoles(Guild).content.decode())
-        for i in range(len(RoleList)):
-            if (CheckJanitorPerms(int(RoleList[i]["permissions"])) == True):
-                Templist.append(RoleList[i]["id"])
-    else:
-        Templist = ModRoles
+    # Get all current roles on a server
+    Roles = SortRoles(User.getGuildRoles(Guild).content.decode())
     
-    for RoleId in Templist:
+    # Automatic moderator fetching
+    if AUTO == True:
+        ModRoles=[] # Reset list just in case
+        Roles = SortRoles(User.getGuildRoles(Guild).content.decode())
+        for i in range(len(Roles)):
+            if (CheckJanitorPerms(int(Roles[i]["permissions"])) == True):
+                ModRoles.append(Roles[i]["id"])
+    
+    for RoleId in ModRoles:
         Log(0, f"Getting UserID's for {RoleId}")
-        UserIDList += Filter(User.getRoleMemberIDs(Guild, RoleId).content.decode())
+        UserIDs = Filter(User.getRoleMemberIDs(Guild, RoleId).content.decode())
+        Log(0, f"Fetched {UserIDs}")
+        UserIDList.append(UserIDs)
         time.sleep(3.5)
 
-    [List.append(x) for x in UserIDList if x not in List]
+    # Flatten list
+    FlattenedUserIDList = [j for sub in UserIDList for j in sub]
+    # Append to list if not already in the list, removing duplicates
+    [List.append(x) for x in FlattenedUserIDList if x not in List]
 
+    # Exit if List is empty
     if len(List) == 0:
         Log(4, "List is empty! Check Role IDs!")
         exit(1)
@@ -105,7 +134,7 @@ async def FillModStatus():
     await Notify(f"Azalea started - tracking {len(List)} moderators total.")
 
 def Init():
-    FillModList()
+    FillLists()
     Kickstart()
 
 def Kickstart():
