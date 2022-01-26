@@ -55,13 +55,19 @@ async def Ping():
         Log(0, "Bloom")
         User.gateway.run()
         for i in range(len(List)):
-            what = User.gateway.session.guild(Guild).members[List[i]]
-            tmp = GetObject(what)
-            if tmp.Status != Jannies[i].Status:
-                Log(1, f"{tmp.Username} ({tmp.Identity}) changed status to {tmp.Status}. Previously was {Jannies[i].Status}. {(tmp.Timestamp-Jannies[i].Timestamp)} has elapsed.")
-                Jannies[i] = tmp
-                await Notify(f"{tmp.Username} ({tmp.Identity}) is now {tmp.Status}")
-            await asyncio.sleep(Refresh)
+            try:
+                what = User.gateway.session.guild(Guild).members[List[i]]
+                tmp = GetObject(what)
+                if tmp.Status != Jannies[i].Status:
+                    Log(1, f"{tmp.Username} ({tmp.Identity}) changed status to {tmp.Status}. Previously was {Jannies[i].Status}. {(tmp.Timestamp-Jannies[i].Timestamp)} has elapsed.")
+                    Jannies[i] = tmp
+                    await Notify(f"{tmp.Username} ({tmp.Identity}) is now {tmp.Status}")
+                await asyncio.sleep(Refresh)
+            except KeyError:
+                Log(1, f"Cant find {Jannies[i].Username}! Removing from list!")
+                List.pop(i)
+                Jannies.pop(i)
+
 
 def FillModList():
     global List
