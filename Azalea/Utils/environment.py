@@ -14,7 +14,7 @@ def FillConfig():
     #Optional
     if os.getenv('REFRESH') is not None:
         Variables.config.Refresh = int(os.genenv('REFRESH'))
-    if os.getenv('REFRESH') is not None:
+    if os.getenv('AUTO') is not None:
         Variables.config.AUTO = bool(os.getenv('AUTO'))
     if os.getenv('DEBUG') is not None:
         Variables.config.DEBUG = bool(os.getenv('DEBUG'))

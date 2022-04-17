@@ -14,7 +14,7 @@ from Objects.Mod import Moderator
 User = discum.Client(token=os.getenv('USERTOKEN'))
 User.gateway.log = {"console":False, "file":False}
 User.log = {"console":False, "file":False}
-Bot = commands.Bot(command_prefix=Variables.config.BOTPREFIX, case_insensitive=True)
+Bot = commands.Bot(command_prefix=os.getenv('BOTPREFIX'), case_insensitive=True)
 
 
 
