@@ -4,3 +4,4 @@ RUN apk add git
 WORKDIR .
 COPY . .
 RUN pip install -r Azalea/requirements.txt
+CMD ["python", "Azalea/main.py"]
