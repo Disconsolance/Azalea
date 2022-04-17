@@ -53,9 +53,9 @@ async def Status(ctx):
 async def CallUpdate(ctx):
     await Update()
 
-@Bot.command(name="version", alias=['v'])
+@Bot.command(name="version")
 async def GetHash(ctx):
-    await Notify(f"The current commit hash is {subprocess.check_output(['git', 'rev-parse', '--short', 'HEAD']).decode('ascii').strip()}")
+    await Notify(f"The current commit hash is {subprocess.check_output(['git', 'rev-parse', '--short', 'HEAD']).decode('ascii').strip()}.")
 
 async def UpdateRole(index):
     global UserIDList
