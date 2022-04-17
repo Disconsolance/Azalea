@@ -2,3 +2,5 @@ version: "3.3"
 services:
   web:
     build: .
+    volumes:
+    - ./Azalea:/Azalea
