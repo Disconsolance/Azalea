@@ -7,10 +7,10 @@ CHANNELID=0
 USERTOKEN=""
 
 # Modwatching
-AUTO=False
+AUTO=True
 Guild=''
 ModRoles=['1', '2']
-Refresh=3.5
+Refresh=5
 
 # Misc
 DEBUG=False
