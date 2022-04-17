@@ -1,31 +1,33 @@
+from distutils.command.config import config
 import discum
 from discord.ext import commands
 import time
 import asyncio
-
-from Variables.config import *
+import os
+import Variables.config
 from Bot.vars import *
 from Utils.environment import FillConfig
 from Utils.lists import *
 from Utils.logging import *
 from Objects.Mod import Moderator
 
-User = discum.Client(token=USERTOKEN)
+User = discum.Client(token=os.getenv('USERTOKEN'))
 User.gateway.log = {"console":False, "file":False}
 User.log = {"console":False, "file":False}
-Bot = commands.Bot(command_prefix=BOTPREFIX, case_insensitive=True)
+Bot = commands.Bot(command_prefix=Variables.config.BOTPREFIX, case_insensitive=True)
 
 
 
 @User.gateway.command
 def Bloom(resp):
 	if resp.event.ready_supplemental:
-		User.gateway.checkGuildMembers(Guild, List, keep="all")
-	if resp.event.guild_members_chunk and User.gateway.finishedGuildSearch(Guild, userIDs=List):
+		User.gateway.checkGuildMembers(Variables.config.Guild, List, keep="all")
+	if resp.event.guild_members_chunk and User.gateway.finishedGuildSearch(Variables.config.Guild, userIDs=List):
 		User.gateway.close()
 
 @Bot.event
 async def on_ready():
+    global User
     User.gateway.run()
     await FillModStatus()
     asyncio.get_event_loop().create_task(Ping())
@@ -54,19 +56,19 @@ async def CallUpdate(ctx):
 
 async def UpdateRole(index):
     global UserIDList
-    UserIDList[index] = Filter(User.getRoleMemberIDs(Guild, ModRoles[index]).content.decode())
+    UserIDList[index] = Filter(User.getRoleMemberIDs(Variables.config.Guild, ModRoles[index]).content.decode())
     Log(0, f"Now - {UserIDList[index]}")
     # TODO: Update trackerlist
 
 async def Update():
-    Counters = dict(json.loads(User.getRoleMemberCounts(Guild).content.decode()))
+    Counters = dict(json.loads(User.getRoleMemberCounts(Variables.config.Guild).content.decode()))
     for i in range(len(ModRoles)):
         if len(UserIDList[i]) != Counters[ModRoles[i]]:
             Log(0, f"Members in {ModRoles[i]} have changed!\nWas: {UserIDList[i]}")
             await UpdateRole(i)
 
 async def Notify(message):
-	channel = Bot.get_channel(CHANNELID)
+	channel = Bot.get_channel(Variables.config.CHANNELID)
 	await channel.send(message)
 
 async def Ping():
@@ -75,13 +77,13 @@ async def Ping():
         User.gateway.run()
         for i in range(len(List)):
             try:
-                what = User.gateway.session.guild(Guild).members[List[i]]
+                what = User.gateway.session.guild(Variables.config.Guild).members[List[i]]
                 tmp = GetObject(what)
                 if tmp.Status != Jannies[i].Status:
                     Log(1, f"{tmp.Username} ({tmp.Identity}) changed status to {tmp.Status}. Previously was {Jannies[i].Status}. {(tmp.Timestamp-Jannies[i].Timestamp)} has elapsed.")
                     Jannies[i] = tmp
                     await Notify(f"{tmp.Username} ({tmp.Identity}) is now {tmp.Status}")
-                await asyncio.sleep(Refresh)
+                await asyncio.sleep(Variables.config.Refresh)
             except KeyError:
                 Log(1, f"Cant find {Jannies[i].Username}! Removing from list!")
                 List.pop(i)
@@ -98,12 +100,12 @@ def FillLists():
 
     # Get all current roles on a server
     print("Stage 0: Fetching roles")
-    Roles = SortRoles(User.getGuildRoles(Guild).content.decode())
+    Roles = SortRoles(User.getGuildRoles(Variables.config.Guild).content.decode())
     
     # Automatic moderator fetching
-    if AUTO == True:
+    if Variables.config.AUTO == True:
         ModRoles=[] # Reset list just in case
-        Roles = SortRoles(User.getGuildRoles(Guild).content.decode())
+        Roles = SortRoles(User.getGuildRoles(Variables.config.Guild).content.decode())
         print("Stage 1: Filtering moderators")
         for i in range(len(Roles)):
             if (CheckJanitorPerms(int(Roles[i]["permissions"])) == True):
@@ -111,7 +113,7 @@ def FillLists():
     Log(0, f"Got {len(ModRoles)} moderator roles")
     for RoleId in ModRoles:
         Log(0, f"Getting UserID's for {RoleId}")
-        UserIDs = Filter(User.getRoleMemberIDs(Guild, RoleId).content.decode())
+        UserIDs = Filter(User.getRoleMemberIDs(Variables.config.Guild, RoleId).content.decode())
         Log(0, f"Fetched {UserIDs}")
         UserIDList.append(UserIDs)
         time.sleep(5)
@@ -129,7 +131,7 @@ def FillLists():
 async def FillModStatus():
     print("Stage 2: Filling mod status")
     for i in range(len(List)):
-        Janny = User.gateway.session.guild(Guild).members[List[i]]
+        Janny = User.gateway.session.guild(Variables.config.Guild).members[List[i]]
         Obj = GetObject(Janny)
         Jannies.append(Obj)
         Log(0, f"Queried {i}, got \"{Obj.Username} ({Obj.Identity}) is {Obj.Status}\"")
@@ -138,10 +140,11 @@ async def FillModStatus():
     await Notify(f"Azalea started - tracking {len(List)} moderators total.")
 
 def Init():
+    global User
     FillLists()
     Kickstart()
 
 def Kickstart():
-    Bot.run(BOTTOKEN)
+    Bot.run(Variables.config.BOTTOKEN)
 
 
