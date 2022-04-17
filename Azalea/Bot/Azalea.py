@@ -1,7 +1,7 @@
-from distutils.command.config import config
 import discum
 from discord.ext import commands
 import time
+import subprocess
 import asyncio
 import os
 import Variables.config
@@ -53,6 +53,9 @@ async def Status(ctx):
 async def CallUpdate(ctx):
     await Update()
 
+@Bot.command(name="version", alias=['v'])
+async def GetHash(ctx):
+    await Notify(f"The current commit hash is {subprocess.check_output(['git', 'rev-parse', '--short', 'HEAD']).decode('ascii').strip()}")
 
 async def UpdateRole(index):
     global UserIDList
