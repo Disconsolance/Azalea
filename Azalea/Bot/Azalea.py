@@ -140,7 +140,6 @@ async def FillModStatus():
     await Notify(f"Azalea started - tracking {len(List)} moderators total.")
 
 def Init():
-    global User
     FillLists()
     Kickstart()
 
