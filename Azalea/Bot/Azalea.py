@@ -5,6 +5,7 @@ import asyncio
 
 from Variables.config import *
 from Bot.vars import *
+from Utils.environment import FillConfig
 from Utils.lists import *
 from Utils.logging import *
 from Objects.Mod import Moderator
@@ -134,6 +135,7 @@ async def FillModStatus():
     await Notify(f"Azalea started - tracking {len(List)} moderators total.")
 
 def Init():
+    FillConfig()
     FillLists()
     Kickstart()
 

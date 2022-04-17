@@ -1,0 +1,5 @@
+git+https://github.com/Merubokkusu/Discord-S.C.U.M.git
+discord
+pytz
+asyncio
+datetime
