@@ -97,22 +97,24 @@ def FillLists():
     UserIDList=[]
 
     # Get all current roles on a server
+    print("Stage 0: Fetching roles")
     Roles = SortRoles(User.getGuildRoles(Guild).content.decode())
     
     # Automatic moderator fetching
     if AUTO == True:
         ModRoles=[] # Reset list just in case
         Roles = SortRoles(User.getGuildRoles(Guild).content.decode())
+        print("Stage 1: Filtering moderators")
         for i in range(len(Roles)):
             if (CheckJanitorPerms(int(Roles[i]["permissions"])) == True):
                 ModRoles.append(Roles[i]["id"])
-    
+    Log(0, f"Got {len(ModRoles)} moderator roles")
     for RoleId in ModRoles:
         Log(0, f"Getting UserID's for {RoleId}")
         UserIDs = Filter(User.getRoleMemberIDs(Guild, RoleId).content.decode())
         Log(0, f"Fetched {UserIDs}")
         UserIDList.append(UserIDs)
-        time.sleep(3.5)
+        time.sleep(5)
 
     # Flatten list
     FlattenedUserIDList = [j for sub in UserIDList for j in sub]
@@ -125,6 +127,7 @@ def FillLists():
         exit(1)
 
 async def FillModStatus():
+    print("Stage 2: Filling mod status")
     for i in range(len(List)):
         Janny = User.gateway.session.guild(Guild).members[List[i]]
         Obj = GetObject(Janny)
@@ -135,7 +138,6 @@ async def FillModStatus():
     await Notify(f"Azalea started - tracking {len(List)} moderators total.")
 
 def Init():
-    FillConfig()
     FillLists()
     Kickstart()
 
